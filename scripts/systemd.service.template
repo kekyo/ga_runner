@@ -1,0 +1,15 @@
+[Unit]
+Description=GitHub Actions runner (@USER_NAME@/@REPOSITORY_NAME@)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart="@SCRIPT_PATH@/run.sh" "@USER_NAME@" "@REPOSITORY_NAME@" "@RUNNER_TOKEN@" "@CONTAINER_NAME@" "@HTTP_PROXY@"
+ExecStop="@SCRIPT_PATH@/stop.sh" "@CONTAINER_NAME@"
+TimeoutSec=300
+Restart=always
+RestartSec=5
+RestartPreventExitStatus=137 143
+
+[Install]
+WantedBy=multi-user.target
