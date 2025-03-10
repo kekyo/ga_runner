@@ -76,25 +76,23 @@ $ sudo systemctl status github-actions-runner_kekyo_foobar
 ## 構成情報の保存
 
 初回GitHubアクセス時に、"Actions runner token" を使用して認証を行います。
-その結果は、 `scripts/runner-cache/config/` 配下に格納されます。
+その結果は、 `scripts/config/` 配下に格納されます。
 
-もし動作がおかしい場合は、このディレクトリに格納された、サービス毎のサブディレクトリを削除して下さい。
-再度 "Actions runner token" を使用して認証を行います。
-
-この時、既に "Actions runner token" の有効期限が切れていると、認証に失敗してしまいます。
-その場合は、一旦 `remove.sh` でサービスを削除して、もう一度 "Actions runner token" の取得からやり直してください。
+もし動作がおかしい場合は、一旦 `remove.sh` でサービスを削除して、もう一度 "Actions runner token" の取得からやり直してください。
 
 ## ジョブコンテナにインストールされたパッケージ
 
-インストール済みのパッケージは最小化されています:
+コンテナにインストールされているパッケージは、最小限です。
+以下にリストを示します:
 
-```bash
-apt-get install -y sudo curl libxml2-utils git unzip libicu-dev
+```
+sudo, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 詳しくは [Dockerfile](scripts/Dockerfile) を参照してください。
 
-必要に応じて、Actions ジョブの YAML スクリプト内で `apt` やその他のツールを使用して追加パッケージをインストールすることができます。
+必要に応じて、Actions ジョブの YAML スクリプト内で `apt-get` やその他のツールを使用して追加パッケージをインストールすることができます。
+つまり、コンテナイメージを再ビルドしなくても、YAMLスクリプトだけでコントロールできます。
 
 ## 複数のランナーインスタンスをインストールする
 
