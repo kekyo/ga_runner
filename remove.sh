@@ -12,7 +12,11 @@ fi
 #---------------------------------------------------
 
 IMAGE_NAME="github-actions-runner"
-CONTAINER_NAME="${IMAGE_NAME}_${USER_NAME}_${REPOSITORY_NAME}"
+INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}"
+CONTAINER_NAME="${IMAGE_NAME}_${INSTANCE_NAME}"
+
+CONFIGURE_BASE_DIR="$(dirname "$0")/scripts/config"
+CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 
 SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 
@@ -27,6 +31,12 @@ if [ -f "$SERVICE_INSTALL_PATH" ]; then
     sudo rm -f "$SERVICE_INSTALL_PATH"
     sudo systemctl daemon-reload
 fi
+
+#-------------------------------------------------
+
+# Remove configuration
+
+sudo rm -rf "$CONFIGURE_DIR"
 
 #-------------------------------------------------
 
