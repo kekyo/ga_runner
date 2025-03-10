@@ -1,3 +1,8 @@
+# GitHub Actions Self-hosted immutable runner"
+# Copyright (c) Kouji Matsui (@kekyo@mi.kekyo.net)"
+# License under MIT.
+# https://github.com/kekyo/ga_runner/
+
 [Unit]
 Description=GitHub Actions runner (@INSTANCE_NAME@)
 After=network.target

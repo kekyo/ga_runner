@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# GitHub Actions Self-hosted immutable runner"
+# Copyright (c) Kouji Matsui (@kekyo@mi.kekyo.net)"
+# License under MIT.
+# https://github.com/kekyo/ga_runner/
+
 #-------------------------------------------------
 
 IMAGE_NAME="github-actions-runner"

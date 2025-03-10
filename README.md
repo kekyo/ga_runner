@@ -2,8 +2,6 @@
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-This is still work in progress.
-
 Tested Actions runner version: [2.322.0](https://github.com/actions/runner/releases) [2025/3/6]
 
 ----
@@ -78,9 +76,6 @@ Therefore, to check the service in operation:
 $ sudo systemctl status github-actions-runner_kekyo_foobar
 ```
 
-Please be careful: The Git local repository contains scripts that are referenced by `systemd`,
-so it is necessary to keep it even after installation.
-
 ## Storing configuration information
 
 When runner access GitHub for the first time, you will be authenticated using your "Actions runner token".
@@ -107,8 +102,6 @@ In other words, you can control it using only the YAML script without having to 
 Yes, you can run multiple runner instance on one host OS.
 Execute `install.sh` multiple time with different user/repository name.
 
-Even in that case, you only need to run the container image builder (`build.sh`) only once.
-
 If you want to run multiple runner instances on the same host for the same repository, you need to specify the "Instance postfix" and run `install.sh`.
 
 For example, to run multiple instances for the `https://github.com/kekyo/foobar` repository:
@@ -128,7 +121,7 @@ As a result, the service names for `systemd` will be as follows:
 
 These are recognized as different services.
 
-## Package caching
+## Package caching feature
 
 Every time the Actions Runner is started, it downloads the latest package version
 `actions-runner-linux-x64-*.tar.gz` from the official
@@ -136,7 +129,7 @@ Every time the Actions Runner is started, it downloads the latest package versio
 and automatically caches it in the directory `scripts/runner-cache/`.
 If these files are up to date, the Runner will reuse them.
 
-The distribution files and packages for APT, NPM, .NET, NuGet, and Pip are also cached.
+The distribution files and packages for APT(Ubuntu), NPM(Node.js), .NET runtime, NuGet(.NET) and Pip(Python) are also cached.
 If you think that the cached content is causing a problem, delete the files under `scripts/runner-cache/`.
 
 ## Redirect HTTP/HTTPS to the proxy server

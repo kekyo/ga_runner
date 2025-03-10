@@ -2,8 +2,6 @@
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-これはまだ作業進行中です。
-
 Tested Actions runner version: [2.322.0](https://github.com/actions/runner/releases) [2025/3/6]
 
 ----
@@ -73,9 +71,6 @@ GitHubがホストするランナーはイミュータブルであり、ビル�
 $ sudo systemctl status github-actions-runner_kekyo_foobar
 ```
 
-ご注意: Gitローカルリポジトリには、`systemd` が参照するスクリプトが含まれています。
-そのため、インストール後もローカルリポジトリを維持しておく必要があります。
-
 ## 構成情報の保存
 
 初回GitHubアクセス時に、"Actions runner token" を使用して認証を行います。
@@ -102,8 +97,6 @@ sudo, curl, libxml2-utils, git, unzip, libicu-dev
 1つのホストOS上で複数のランナーインスタンスを実行できます。
 異なるユーザー名/リポジトリ名で `install.sh` を複数回実行してください。
 
-その場合でも、コンテナイメージビルダー（`build.sh`）は1回のみ実行すれば十分です。
-
 同じリポジトリに対して、複数のランナーインスタンスを同一のホストで実行したい場合は、"Instance postfix"を指定して`install.sh`を実行する必要があります。
 例えば、`https://github.com/kekyo/foobar` リポジトリに対して、複数のインスタンスを実行する場合は:
 
@@ -121,12 +114,12 @@ $ ./install.sh kekyo foobar "instance3" ABP************************
 
 これらは異なるサービスとして認識されています。
 
-## パッケージのキャッシュ
+## パッケージのキャッシュ機能
 
 Actionsランナーは、起動されるたびに、公式の [GitHub Actions runner release repository](https://github.com/actions/runner/releases)
-から最新のパッケージバージョン `actions-runner-linux-x64-*.tar.gz` をダウンロードし、ディレクトリ `scripts/runner-cache/` に自動的にキャッシュされます。これらのファイルが最新のものであれば、ランナーは再利用します。
+から最新のパッケージバージョン `actions-runner-linux-x64-*.tar.gz` をダウンロードし、ディレクトリ `scripts/runner-cache/` に自動的にキャッシュします。これらのファイルが最新のものであれば、ランナーは再利用します。
 
-また、APT, NPM, .NET, NuGet, .NET, Pipの各配布ファイルやパッケージもキャッシュされます。
+また、APT(Ubuntu), NPM(Node.js), .NET runtime, NuGet(.NET), Pip(Python)の各配布ファイルやパッケージもキャッシュされます。
 もし、キャッシュされたコンテンツが原因で動作がおかしいと思われた場合は、 `scripts/runner-cache/` 配下のファイルを削除してください。
 
 ## HTTP/HTTPSをプロキシサーバーにリダイレクトする
@@ -158,7 +151,7 @@ $ echo "maximum_object_size 100 MB" | sudo tee -a /etc/squid/conf.d/cache_dir.co
 $ sudo systemctl restart squid
 ```
 
-`podman` は特別な FQDN `host.containers.internal` を使用してホストの仮想ネットワークアドレスを指定できるので、次のように URL を指定できます。
+`podman` は特別な FQDN `host.containers.internal` を使用して、ホストの仮想ネットワークアドレスを指定できるので、次のように URL を指定できます:
 
 ```bash
 $ ./install.sh kekyo foobar ABP************************ http://host.containers.internal:3128

@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# GitHub Actions Self-hosted immutable runner"
+# Copyright (c) Kouji Matsui (@kekyo@mi.kekyo.net)"
+# License under MIT.
+# https://github.com/kekyo/ga_runner/
+
 CONTAINER_NAME="$1"
 INSTANCE_NAME="$2"
 
@@ -24,6 +29,7 @@ NPM_DIR="${CACHE_DIR}/npm"
 NUGET_DIR="${CACHE_DIR}/nuget"
 DOTNET_DIR="${CACHE_DIR}/dotnet"
 PIP_DIR="${CACHE_DIR}/pip"
+MAVEN_DIR="${CACHE_DIR}/maven"
 
 mkdir -p "$CACHE_DIR"
 sudo chmod 770 "$CACHE_DIR"
@@ -57,6 +63,10 @@ mkdir -p "$PIP_DIR"
 sudo chmod 775 "$PIP_DIR"
 sudo chgrp 1001 "$PIP_DIR"
 
+mkdir -p "$MAVEN_DIR"
+sudo chmod 775 "$MAVEN_DIR"
+sudo chgrp 1001 "$MAVEN_DIR"
+
 CONFIGURE_DIR="$(dirname $0)/config/${INSTANCE_NAME}"
 
 #-------------------------------------------------
@@ -72,6 +82,7 @@ sudo podman run --rm --name "${CONTAINER_NAME}" \
     -v ${NUGET_DIR}:/home/runner/.nuget \
     -v ${DOTNET_DIR}:/home/runner/.dotnet \
     -v ${PIP_DIR}:/home/runner/.cache/pip \
+    -v ${MAVEN_DIR}:/home/runner/.m2/repository \
     $IMAGE_NAME
 
 exit $?

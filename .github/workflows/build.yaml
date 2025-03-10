@@ -1,0 +1,77 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    env:
+      DOTNET_INSTALL_DIR: "~/.dotnet"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl git build-essential clang mono-complete pandoc
+
+    - name: Setup .NET SDKs
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          2.2.x
+          3.1.x
+          5.0.x
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
+
+    # https://github.com/dotnet/dotnet-docker/issues/520
+    - name: Update .NET CLI PATH
+      run: |
+        echo "~/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13' 
+
+    - name: Extract branch name
+      id: extract_branch_name
+      run: |
+        export branch_names=`git for-each-ref --format='%(refname:short)' --contains HEAD | tr -s '\n' ' '`
+        echo "Detected current branch: ${branch_names}"
+        echo "branch_names=${branch_names}" >> $GITHUB_OUTPUT
+
+    #-----------------------------------------------------------------------
+    # Build
+
+    - name: Node.js install dependencies
+      run: |
+        cd test
+        npm install
+
+    - name: Node.js build
+      run: |
+        cd test
+        npm run build
+
+    - name: .NET install dependencies
+      run: |
+        cd test
+        dotnet restore
+
+    - name: .NET build
+      run: |
+        cd test
+        dotnet build
