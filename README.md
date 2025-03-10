@@ -46,8 +46,11 @@ In other words, as the administrator of the host machine, you don't have to do a
 The script has `sudo` inserted appropriately, so you can start working as a normal user.
 We will explain the repository that wants to install the self-hosted runner as `https://github.com/kekyo/foobar`:
 
-1. Clone `ga_runner` repository on your host machine:
+1. Clone `ga_runner` repository on your host machine.
+   The local repository contains the scripts that `systemd` refers to.
+   Since you will need to maintain the local repository after installation, please decide on a location based on that assumption:
    ```bash
+   $ cd <stable_location>
    $ git clone https://github.com/kekyo/ga_runner
    ```
 2. Build `podman` image (You have to run only once per the host).
@@ -57,16 +60,16 @@ We will explain the repository that wants to install the self-hosted runner as `
    $ ./build.sh
    ```
 3. Pick your repository "Actions runner token" from GitHub.
-   It is NOT "personal access token":
+   It is NOT "personal access token", please refer to the following screenshot:
    ![Step 1](images/step1.png)
    ![Step 2](images/step2.png)
 4. Install runner service by:
-   `install.sh <GitHub user name> <GitHub repository name> <Actions runner token>`. For example:
+   `install.sh <GitHub user name> <GitHub repository name> <Instance postfix> <Actions runner token>`. For example:
    ```bash
-   $ ./install.sh kekyo foobar ABP************************
+   $ ./install.sh kekyo foobar "" ABP************************
    ```
 
-Done!
+That's all!  ("Instance postfix" argument is specified as an empty string. Will explain this later.)
 
 The `systemd` service is named as `github-actions-runner_kekyo_foobar`.
 Therefore, to check the service in operation:
@@ -101,12 +104,29 @@ In other words, you can control it using only the YAML script without having to 
 
 ## Install multiple runner instance
 
-TODO: WIP
-
 Yes, you can run multiple runner instance on one host OS.
 Execute `install.sh` multiple time with different user/repository name.
 
 Even in that case, you only need to run the container image builder (`build.sh`) only once.
+
+If you want to run multiple runner instances on the same host for the same repository, you need to specify the "Instance postfix" and run `install.sh`.
+
+For example, to run multiple instances for the `https://github.com/kekyo/foobar` repository:
+
+```bash
+$ ./install.sh kekyo foobar "instance1" ABP************************
+$ ./install.sh kekyo foobar "instance2" ABP************************
+$ ./install.sh kekyo foobar "instance3" ABP************************
+```
+
+Please identify them using "Instance postfix".
+As a result, the service names for `systemd` will be as follows:
+
+* `github-actions-runner_kekyo_foobar_instance1`
+* `github-actions-runner_kekyo_foobar_instance2`
+* `github-actions-runner_kekyo_foobar_instance3`
+
+These are recognized as different services.
 
 ## Actions runner package will be cached
 
@@ -121,11 +141,12 @@ When this files are valid to latest, the runner reuse it.
 You may want to cache the HTTP/HTTPS access that the job performs.
 These can be redirected to your nearest local proxy server, which will then cache them.
 This will speed up the download of packages and content.
+Of course, you can also use it to get tunneling firewalls.
 
 The URL to the proxy server is specified as the fourth optional argument to `install.sh`:
 
 ```bash
-$ ./install.sh kekyo foobar ABP************************ http://proxy.example.com:3128
+$ ./install.sh kekyo foobar "" ABP************************ http://proxy.example.com:3128
 ```
 
 The URL you specify must be a valid hostname that can be accessed from within the runner container.
@@ -160,7 +181,6 @@ $ ./remove.sh kekyo foobar
 
 ## TODO
 
-* Supports multiple runner instance on same repository.
 * Cache the packages into `runner-cache/` (APT, NPM, NuGet and etc)
 
 ## License

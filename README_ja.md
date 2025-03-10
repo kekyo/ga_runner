@@ -41,8 +41,11 @@ GitHubがホストするランナーはイミュータブルであり、ビル�
 スクリプトには適切に `sudo` が挿入されているので、一般ユーザーで作業を始めて構いません。
 セルフホストランナーを導入したいリポジトリが `https://github.com/kekyo/foobar` として説明します:
 
-1. ホストマシンに `ga_runner` リポジトリをクローンします:
+1. ホストマシンに `ga_runner` リポジトリをクローンします。
+   ローカルリポジトリには、`systemd` が参照するスクリプトが含まれています。
+   インストール後もローカルリポジトリを維持しておく必要があるため、その前提で配置場所を決定してください:
    ```bash
+   $ cd <stable_location>
    $ git clone https://github.com/kekyo/ga_runner
    ```
 2. コンテナイメージをビルドします（ホストごとに1回のみ実行する必要があります）。
@@ -52,16 +55,16 @@ GitHubがホストするランナーはイミュータブルであり、ビル�
    $ ./build.sh
    ```
 3. GitHubから "Actions runner token" を取得します。
-   これは "Personal access token" の事ではありません:
+   これは "Personal access token" の事ではありません。以下のスクリーンショットを参考にしてください:
    ![Step 1](images/step1.png)
    ![Step 2](images/step2.png)
 4. ランナーサービスをこのスクリプトでインストールします:
-   `install.sh <GitHub user name> <GitHub repository name> <Actions runner token>`. 例えば:
+   `install.sh <GitHub user name> <GitHub repository name> <Instance postfix> <Actions runner token>`. 例えば:
    ```bash
-   $ ./install.sh kekyo foobar ABP************************
+   $ ./install.sh kekyo foobar "" ABP************************
    ```
 
-これで終わりです！
+これで終わりです！  （"Instance postfix"は空文字列を指定します。これについては後で示します。）
 
 `systemd` サービスは `github-actions-runner_kekyo_foobar` という名前です。
 そのため、稼働中のサービスを確認するには：
@@ -96,12 +99,27 @@ sudo, curl, libxml2-utils, git, unzip, libicu-dev
 
 ## 複数のランナーインスタンスをインストールする
 
-TODO: WIP
-
 1つのホストOS上で複数のランナーインスタンスを実行できます。
 異なるユーザー名/リポジトリ名で `install.sh` を複数回実行してください。
 
 その場合でも、コンテナイメージビルダー（`build.sh`）は1回のみ実行すれば十分です。
+
+同じリポジトリに対して、複数のランナーインスタンスを同一のホストで実行したい場合は、"Instance postfix"を指定して`install.sh`を実行する必要があります。
+例えば、`https://github.com/kekyo/foobar` リポジトリに対して、複数のインスタンスを実行する場合は:
+
+```bash
+$ ./install.sh kekyo foobar "instance1" ABP************************
+$ ./install.sh kekyo foobar "instance2" ABP************************
+$ ./install.sh kekyo foobar "instance3" ABP************************
+```
+
+のように、"Instance postfix"で区別してください。結果として、 `systemd` のサービス名は、以下のようになります:
+
+* `github-actions-runner_kekyo_foobar_instance1`
+* `github-actions-runner_kekyo_foobar_instance2`
+* `github-actions-runner_kekyo_foobar_instance3`
+
+これらは異なるサービスとして認識されています。
 
 ## ランナーパッケージのアクションはキャッシュされます
 
@@ -116,11 +134,12 @@ Actionsランナーは、起動されるたびに、公式の [GitHub Actions ru
 ジョブが実行するHTTP/HTTPSアクセスをキャッシュしたい場合もあるでしょう。
 これらは最寄りのローカルプロキシサーバーにリダイレクトでき、プロキシサーバーがキャッシュします。
 これにより、パッケージやコンテンツのダウンロードが高速化されます。
+もちろん、ファイアーウォールを超えるために使用する事もできます。
 
 プロキシサーバーへのURLは、`install.sh` の4番目のオプション引数として指定します。
 
 ```bash
-$ ./install.sh kekyo foobar ABP************************ http://proxy.example.com:3128
+$ ./install.sh kekyo foobar "" ABP************************ http://proxy.example.com:3128
 ```
 
 指定するURLは、ランナーコンテナ内からアクセス可能な有効なホスト名でなければなりません。
@@ -155,7 +174,6 @@ $ ./remove.sh kekyo foobar
 
 ## TODO
 
-* 同一のリポジトリ上で複数のランナーインスタンスをサポート。
 * パッケージを `runner-cache/` にキャッシュ（APT、NPM、NuGetなど）
 
 ## License

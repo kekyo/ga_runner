@@ -3,18 +3,25 @@ set -e
 
 USER_NAME="$1"
 REPOSITORY_NAME="$2"
-RUNNER_TOKEN="$3"
-HTTP_PROXY="$4"
+INSTANCE_POSTFIX="$3"
+RUNNER_TOKEN="$4"
+HTTP_PROXY="$5"
 
 if [ -z "$USER_NAME" ] || [ -z "$REPOSITORY_NAME" ] || [ -z "$RUNNER_TOKEN" ]; then
-    echo "usage: setup.sh <user_name> <repository_name> <runner_token> [<proxy url>]"
+    echo "usage: setup.sh <user_name> <repository_name> <instance_postfix> <runner_token> [<proxy url>]"
     exit 1
 fi
 
 #-------------------------------------------------
 
 IMAGE_NAME="github-actions-runner"
-INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}"
+
+if [ -z "$INSTANCE_POSTFIX" ]; then
+    INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}"
+else
+    INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}_${INSTANCE_POSTFIX}"
+fi
+
 CONTAINER_NAME="${IMAGE_NAME}_${INSTANCE_NAME}"
 GITHUB_URL="https://github.com/${USER_NAME}/${REPOSITORY_NAME}"
 
@@ -49,12 +56,18 @@ fi
 #---------------------------------------------------
 
 # Runner name (on GitHub Actions console)
-if RUNNER_NAME=$(hostname -A 2>/dev/null | head -n 1); then
-    if [ -z "$RUNNER_NAME" ]; then
-        RUNNER_NAME=$(hostname -f 2>/dev/null || hostname)
+if RUNNER_BASE_NAME=$(hostname -A 2>/dev/null | head -n 1 | awk '{$1=$1; print}'); then
+    if [ -z "$RUNNER_BASE_NAME" ]; then
+        RUNNER_BASE_NAME=$(hostname -f 2>/dev/null || hostname)
     fi
 else
-    RUNNER_NAME=$(hostname -f 2>/dev/null || hostname)
+    RUNNER_BASE_NAME=$(hostname -f 2>/dev/null || hostname)
+fi
+
+if [ -z "$INSTANCE_POSTFIX" ]; then
+    RUNNER_NAME="$RUNNER_BASE_NAME"
+else
+    RUNNER_NAME="${RUNNER_BASE_NAME}_${INSTANCE_POSTFIX}"
 fi
 
 #---------------------------------------------------
