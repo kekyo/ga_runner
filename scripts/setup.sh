@@ -44,6 +44,7 @@ NPM_DIR="${CACHE_DIR}/npm"
 NUGET_DIR="${CACHE_DIR}/nuget"
 DOTNET_DIR="${CACHE_DIR}/dotnet"
 PIP_DIR="${CACHE_DIR}/pip"
+MAVEN_DIR="${CACHE_DIR}/maven"
 
 mkdir -p "$CACHE_DIR"
 sudo chmod 770 "$CACHE_DIR"
@@ -76,6 +77,10 @@ sudo chgrp 1001 "$DOTNET_DIR"
 mkdir -p "$PIP_DIR"
 sudo chmod 775 "$PIP_DIR"
 sudo chgrp 1001 "$PIP_DIR"
+
+mkdir -p "$MAVEN_DIR"
+sudo chmod 775 "$MAVEN_DIR"
+sudo chgrp 1001 "$MAVEN_DIR"
 
 CONFIGURE_BASE_DIR="$(dirname "$0")/config"
 
