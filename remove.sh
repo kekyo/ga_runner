@@ -3,16 +3,23 @@ set -e
 
 USER_NAME="$1"
 REPOSITORY_NAME="$2"
+INSTANCE_POSTFIX="$3"
 
 if [ -z "$USER_NAME" ] || [ -z "$REPOSITORY_NAME" ]; then
-    echo "usage: remove.sh <user_name> <repository_name>"
+    echo "usage: remove.sh <user_name> <repository_name> <instance_postfix>"
     exit 1
 fi
 
 #---------------------------------------------------
 
 IMAGE_NAME="github-actions-runner"
-INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}"
+
+if [ -z "$INSTANCE_POSTFIX" ]; then
+    INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}"
+else
+    INSTANCE_NAME="${USER_NAME}_${REPOSITORY_NAME}_${INSTANCE_POSTFIX}"
+fi
+
 CONTAINER_NAME="${IMAGE_NAME}_${INSTANCE_NAME}"
 
 CONFIGURE_BASE_DIR="$(dirname "$0")/scripts/config"
