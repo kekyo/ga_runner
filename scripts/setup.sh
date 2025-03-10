@@ -32,11 +32,47 @@ SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 
 # Preserve the cache and configuration directory
 CACHE_DIR="$(dirname "$0")/runner-cache"
-CONFIGURE_BASE_DIR="$(dirname "$0")/config"
+APT_DIR="${CACHE_DIR}/apt"
+APT_ARCHIVE_DIR="${APT_DIR}/archives"
+APT_LIST_DIR="${APT_DIR}/lists"
+NPM_DIR="${CACHE_DIR}/npm"
+NUGET_DIR="${CACHE_DIR}/nuget"
+DOTNET_DIR="${CACHE_DIR}/dotnet"
+PIP_DIR="${CACHE_DIR}/pip"
 
 mkdir -p "$CACHE_DIR"
 sudo chmod 770 "$CACHE_DIR"
 sudo chgrp 1001 "$CACHE_DIR"
+
+mkdir -p "$APT_DIR"
+sudo chmod 775 "$APT_DIR"
+sudo chgrp 1001 "$APT_DIR"
+
+mkdir -p "$APT_ARCHIVE_DIR"
+sudo chmod 775 "$APT_ARCHIVE_DIR"
+sudo chgrp 1001 "$APT_ARCHIVE_DIR"
+
+mkdir -p "$APT_LIST_DIR"
+sudo chmod 775 "$APT_LIST_DIR"
+sudo chgrp 1001 "$APT_LIST_DIR"
+
+mkdir -p "$NPM_DIR"
+sudo chmod 775 "$NPM_DIR"
+sudo chgrp 1001 "$NPM_DIR"
+
+mkdir -p "$NUGET_DIR"
+sudo chmod 775 "$NUGET_DIR"
+sudo chgrp 1001 "$NUGET_DIR"
+
+mkdir -p "$DOTNET_DIR"
+sudo chmod 775 "$DOTNET_DIR"
+sudo chgrp 1001 "$DOTNET_DIR"
+
+mkdir -p "$PIP_DIR"
+sudo chmod 775 "$PIP_DIR"
+sudo chgrp 1001 "$PIP_DIR"
+
+CONFIGURE_BASE_DIR="$(dirname "$0")/config"
 
 mkdir -p "$CONFIGURE_BASE_DIR"
 sudo chmod 770 "$CONFIGURE_BASE_DIR"

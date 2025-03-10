@@ -128,13 +128,16 @@ As a result, the service names for `systemd` will be as follows:
 
 These are recognized as different services.
 
-## Actions runner package will be cached
+## Package caching
 
-The Actions runner try to download latest package version `actions-runner-linux-x64-*.tar.gz`
-from official [GitHub Actions runner release repository](https://github.com/actions/runner/releases) each started.
+Every time the Actions Runner is started, it downloads the latest package version
+`actions-runner-linux-x64-*.tar.gz` from the official
+[GitHub Actions runner release repository](https://github.com/actions/runner/releases)
+and automatically caches it in the directory `scripts/runner-cache/`.
+If these files are up to date, the Runner will reuse them.
 
-And it will be cached the directory `scripts/runner-cache/` automatically.
-When this files are valid to latest, the runner reuse it.
+The distribution files and packages for APT, NPM, .NET, NuGet, and Pip are also cached.
+If you think that the cached content is causing a problem, delete the files under `scripts/runner-cache/`.
 
 ## Redirect HTTP/HTTPS to the proxy server
 
@@ -173,15 +176,13 @@ $ ./install.sh kekyo foobar ABP************************ http://host.containers.i
 
 ## Remove the runner service
 
+`remove.sh <GitHub user name> <GitHub repository name> <Instance postfix>`. For example:
+
 ```bash
-$ ./remove.sh kekyo foobar
+$ ./remove.sh kekyo foobar ""
 ```
 
 ----
-
-## TODO
-
-* Cache the packages into `runner-cache/` (APT, NPM, NuGet and etc)
 
 ## License
 
