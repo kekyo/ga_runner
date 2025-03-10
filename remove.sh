@@ -29,6 +29,12 @@ SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 
 #-------------------------------------------------
 
+echo "GitHub Actions Self-hosted immutable runner"
+echo "Copyright (c) Kouji Matsui (@kekyo@mi.kekyo.net)"
+echo "License under MIT."
+echo "https://github.com/kekyo/ga_runner/"
+echo ""
+
 # Remove previous service
 if [ -f "$SERVICE_INSTALL_PATH" ]; then
     echo "Removing previous installed service: $CONTAINER_NAME"
