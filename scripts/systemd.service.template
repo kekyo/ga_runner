@@ -1,10 +1,10 @@
 [Unit]
-Description=GitHub Actions runner (@USER_NAME@/@REPOSITORY_NAME@)
+Description=GitHub Actions runner (@INSTANCE_NAME@)
 After=network.target
 
 [Service]
 Type=simple
-ExecStart="@SCRIPT_PATH@/run.sh" "@USER_NAME@" "@REPOSITORY_NAME@" "@RUNNER_TOKEN@" "@CONTAINER_NAME@" "@HTTP_PROXY@"
+ExecStart="@SCRIPT_PATH@/run.sh" "@CONTAINER_NAME@" "@INSTANCE_NAME@"
 ExecStop="@SCRIPT_PATH@/stop.sh" "@CONTAINER_NAME@"
 TimeoutSec=300
 Restart=always

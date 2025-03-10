@@ -1,23 +1,33 @@
 #!/bin/sh
 set -e
 
-if [ -z "$GITHUB_URL" ] || [ -z "$RUNNER_TOKEN" ] || [ -z "$RUNNER_NAME" ] || [ -z "$CONTAINER_NAME" ]; then
-    echo "Set GITHUB_URL, RUNNER_TOKEN, RUNNER_NAME and CONTAINER_NAME"
+if [ -z "$INSTANCE_NAME" ]; then
+    echo "Set INSTANCE_NAME"
     exit 1
 fi
 
 #-----------------------------------------------------
 
-# Cache path
+# Path
 CACHE_DIR="/runner-cache"
+CONFIGURE_DIR="/config"
 RUNNER_DIR="/home/runner/actions-runner"
 
 #-----------------------------------------------------
 
-# Apply for proxy
-if [ -z "$HTTP_PROXY" ]; then
-    echo "Not use HTTP proxy."
+if [ -d "$CONFIGURE_DIR" ]; then
+    echo "Configuration directory is found: $CONFIGURE_DIR"
 else
+    echo "Configuration directory is not found: $CONFIGURE_DIR"
+    exit 1
+fi
+
+#-----------------------------------------------------
+
+# Apply for proxy
+HTTP_PROXY_PATH="${CONFIGURE_DIR}/http_proxy"
+if [ -f "$HTTP_PROXY_PATH" ]; then
+    HTTP_PROXY=$(cat "$HTTP_PROXY_PATH")
     echo "Using HTTP proxy: $HTTP_PROXY"
     echo "export http_proxy=$HTTP_PROXY" | sudo tee -a /etc/profile 2>/dev/null
     echo "export https_proxy=$HTTP_PROXY" | sudo tee -a /etc/profile 2>/dev/null
@@ -48,8 +58,6 @@ echo "Detected GitHub Actions runner latest version: ${RUNNER_VERSION}"
 
 #-----------------------------------------------------
 
-mkdir -p "$CACHE_DIR"
-
 # Reuse cached runner package
 RUNNER_PACKAGE_NAME="actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 RUNNER_PACKAGE_PATH="${CACHE_DIR}/${RUNNER_PACKAGE_NAME}"
@@ -79,17 +87,25 @@ chmod +x config.sh run.sh
 
 #-----------------------------------------------------
 
-CONFIGURED_PATH="${CACHE_DIR}/config/${CONTAINER_NAME}"
-
-if [ -d "$CONFIGURED_PATH" ]; then
-    echo "Runner already configured: $CONFIGURED_PATH"
-    find "${CONFIGURED_PATH}" -maxdepth 1 -type f -name '.*' -exec cp {} . \;
-else
+# Configure the runner
+GITHUB_URL_PATH="${CONFIGURE_DIR}/github_url"
+RUNNER_NAME_PATH="${CONFIGURE_DIR}/runner_name"
+RUNNER_TOKEN_PATH="${CONFIGURE_DIR}/runner_token"
+if [ -f "$GITHUB_URL_PATH" ] && [ -f "$RUNNER_NAME_PATH" ] && [ -f "$RUNNER_TOKEN_PATH" ]; then
     # Register runner
     echo "Configuring the runner..."
-    ./config.sh --url "$GITHUB_URL" --token "$RUNNER_TOKEN" --name "$RUNNER_NAME" --unattended --disableupdate --replace
-    mkdir -p "${CONFIGURED_PATH}"
-    find . -maxdepth 1 -type f -name '.*' -exec cp {} "${CONFIGURED_PATH}/" \;
+    GITHUB_URL=$(cat "$GITHUB_URL_PATH")
+    RUNNER_NAME=$(cat "$RUNNER_NAME_PATH")
+    RUNNER_TOKEN=$(cat "$RUNNER_TOKEN_PATH")
+    echo "GITHUB_URL=$GITHUB_URL"
+    echo "RUNNER_NAME=$RUNNER_NAME"
+    echo "RUNNER_TOKEN=************"
+    ./config.sh --url "$GITHUB_URL" --name "$RUNNER_NAME" --token "$RUNNER_TOKEN" --unattended --disableupdate --replace
+    rm -f "$GITHUB_URL_PATH" "$RUNNER_NAME_PATH" "$RUNNER_TOKEN_PATH"
+    find . -maxdepth 1 -type f -name '.*' -exec cp {} "${CONFIGURE_DIR}/" \;
+else
+    echo "Runner already configured: $CONFIGURE_DIR"
+    find "${CONFIGURE_DIR}" -maxdepth 1 -type f -name '.*' -exec cp {} . \;
 fi
 
 #-----------------------------------------------------

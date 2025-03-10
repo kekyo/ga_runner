@@ -81,25 +81,23 @@ so it is necessary to keep it even after installation.
 ## Storing configuration information
 
 When runner access GitHub for the first time, you will be authenticated using your "Actions runner token".
-The results of this authentication will be stored in the `scripts/runner-cache/config/` directory.
+The results of this authentication will be stored in the `scripts/config/` directory.
 
-If something goes wrong, delete the subdirectories for each service stored in this directory.
-Authenticate again using your "Actions runner token".
-
-If the "Actions runner token" has already expired, authentication will fail.
-In this case, delete the service using `remove.sh` and start again from the beginning, obtaining a new "Actions runner token".
+If something goes wrong, delete the service using `remove.sh` and start again from the beginning, obtaining a new "Actions runner token".
 
 ## Installed packages on the job container
 
-Minimized package installation:
+The number of packages installed in the container is minimal.
+The list is shown below:
 
-```bash
-apt-get install -y sudo curl libxml2-utils git unzip libicu-dev
+```
+sudo, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 See [Dockerfile](scripts/Dockerfile) for detail.
 
-If necessary, you can install additional packages using `apt` or other tools within the Actions job YAML script.
+If necessary, you can install additional packages using `apt-get` or other tools within the Actions job YAML script.
+In other words, you can control it using only the YAML script without having to rebuild the container image.
 
 ## Install multiple runner instance
 
