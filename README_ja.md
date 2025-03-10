@@ -121,13 +121,13 @@ $ ./install.sh kekyo foobar "instance3" ABP************************
 
 これらは異なるサービスとして認識されています。
 
-## ランナーパッケージのアクションはキャッシュされます
+## パッケージのキャッシュ
 
 Actionsランナーは、起動されるたびに、公式の [GitHub Actions runner release repository](https://github.com/actions/runner/releases)
-から最新のパッケージバージョン `actions-runner-linux-x64-*.tar.gz` をダウンロードしようとします。
+から最新のパッケージバージョン `actions-runner-linux-x64-*.tar.gz` をダウンロードし、ディレクトリ `scripts/runner-cache/` に自動的にキャッシュされます。これらのファイルが最新のものであれば、ランナーは再利用します。
 
-また、ディレクトリ `scripts/runner-cache/` に自動的にキャッシュされます。
-これらのファイルが最新のものであれば、ランナーは再利用します。
+また、APT, NPM, .NET, NuGet, .NET, Pipの各配布ファイルやパッケージもキャッシュされます。
+もし、キャッシュされたコンテンツが原因で動作がおかしいと思われた場合は、 `scripts/runner-cache/` 配下のファイルを削除してください。
 
 ## HTTP/HTTPSをプロキシサーバーにリダイレクトする
 
@@ -166,15 +166,13 @@ $ ./install.sh kekyo foobar ABP************************ http://host.containers.i
 
 ## ランナーサービスを削除する
 
+`remove.sh <GitHub user name> <GitHub repository name> <Instance postfix>`. 例えば:
+
 ```bash
-$ ./remove.sh kekyo foobar
+$ ./remove.sh kekyo foobar ""
 ```
 
 ----
-
-## TODO
-
-* パッケージを `runner-cache/` にキャッシュ（APT、NPM、NuGetなど）
 
 ## License
 
