@@ -89,7 +89,7 @@ The number of packages installed in the container is minimal.
 The list is shown below:
 
 ```
-sudo, curl, libxml2-utils, git, unzip, libicu-dev
+sudo, tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 See [Dockerfile](scripts/Dockerfile) for detail.

@@ -84,7 +84,7 @@ $ sudo systemctl status github-actions-runner_kekyo_foobar
 以下にリストを示します:
 
 ```
-sudo, curl, libxml2-utils, git, unzip, libicu-dev
+sudo, tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 詳しくは [Dockerfile](scripts/Dockerfile) を参照してください。

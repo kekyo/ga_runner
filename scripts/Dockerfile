@@ -11,7 +11,7 @@ ENV RUNNER_HOME=/home/runner
 
 # Packages
 RUN apt-get update && apt-get install -y \
-    sudo curl libxml2-utils git unzip libicu-dev \
+    sudo tzdata locales curl libxml2-utils git unzip libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Add a runner user
