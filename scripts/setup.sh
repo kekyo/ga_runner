@@ -33,10 +33,14 @@ GITHUB_URL="https://github.com/${USER_NAME}/${REPOSITORY_NAME}"
 SERVICE_TEMPLATE_FILE="systemd.service.template"
 SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 
+SCRIPT_DIR="$(dirname "$0")"
+CONFIGURE_BASE_DIR="${SCRIPT_DIR}/config"
+CACHE_BASE_DIR="${SCRIPT_DIR}/runner-cache"
+
 #-------------------------------------------------
 
 # Preserve the cache and configuration directory
-CACHE_DIR="$(dirname "$0")/runner-cache"
+CACHE_DIR="${CACHE_BASE_DIR}/${INSTANCE_NAME}"
 APT_DIR="${CACHE_DIR}/apt"
 APT_ARCHIVE_DIR="${APT_DIR}/archives"
 APT_LIST_DIR="${APT_DIR}/lists"
@@ -82,11 +86,11 @@ mkdir -p "$MAVEN_DIR"
 sudo chmod 775 "$MAVEN_DIR"
 sudo chgrp 1001 "$MAVEN_DIR"
 
-CONFIGURE_BASE_DIR="$(dirname "$0")/config"
-
 mkdir -p "$CONFIGURE_BASE_DIR"
 sudo chmod 770 "$CONFIGURE_BASE_DIR"
 sudo chgrp 1001 "$CONFIGURE_BASE_DIR"
+
+CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 
 #-------------------------------------------------
 
@@ -119,7 +123,6 @@ fi
 #---------------------------------------------------
 
 # Clean and save configuration
-CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 sudo rm -rf "$CONFIGURE_DIR"
 mkdir -p "$CONFIGURE_DIR"
 sudo chmod 770 "$CONFIGURE_DIR"

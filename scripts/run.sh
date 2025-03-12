@@ -18,10 +18,14 @@ fi
 
 IMAGE_NAME="github-actions-runner"
 
+SCRIPT_DIR="$(dirname "$0")"
+CONFIGURE_BASE_DIR="${SCRIPT_DIR}/config"
+CACHE_BASE_DIR="${SCRIPT_DIR}/runner-cache"
+
 #-------------------------------------------------
 
 # Preserve the cache directory
-CACHE_DIR="$(dirname $0)/runner-cache"
+CACHE_DIR="${CACHE_BASE_DIR}/${INSTANCE_NAME}"
 APT_DIR="${CACHE_DIR}/apt"
 APT_ARCHIVE_DIR="${APT_DIR}/archives"
 APT_LIST_DIR="${APT_DIR}/lists"
@@ -67,7 +71,7 @@ mkdir -p "$MAVEN_DIR"
 sudo chmod 775 "$MAVEN_DIR"
 sudo chgrp 1001 "$MAVEN_DIR"
 
-CONFIGURE_DIR="$(dirname $0)/config/${INSTANCE_NAME}"
+CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 
 #-------------------------------------------------
 
