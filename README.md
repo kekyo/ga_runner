@@ -102,7 +102,7 @@ In other words, you can control it using only the YAML script without having to 
 Yes, you can run multiple runner instance on one host OS.
 Execute `install.sh` multiple time with different user/repository name.
 
-If you want to run multiple runner instances on the same host for the same repository, you need to specify the "Instance postfix" and run `install.sh`.
+If you want to run multiple runner instances on the same host for the same repository, you need to specify the "Instance postfix" argument and run `install.sh`.
 
 For example, to run multiple instances for the `https://github.com/kekyo/foobar` repository:
 
