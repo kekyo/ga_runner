@@ -36,7 +36,7 @@ SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 #-------------------------------------------------
 
 # Preserve the cache and configuration directory
-CACHE_DIR="$(dirname "$0")/runner-cache"
+CACHE_DIR="$(dirname "$0")/runner-cache/${INSTANCE_NAME}"
 APT_DIR="${CACHE_DIR}/apt"
 APT_ARCHIVE_DIR="${APT_DIR}/archives"
 APT_LIST_DIR="${APT_DIR}/lists"
