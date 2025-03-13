@@ -20,6 +20,13 @@ it is quite troublesome to set up a clean build environment.
 This script configures GitHub Actions self-hosted runners to run immutably.
 It is very easy to use, and the prepared runner instance is reset each time a job is executed, which improves the reproducibility of CI/CD.
 
+This is a good fit for people with the following issues:
+
+* You quickly use up the free quota of runners hosted by GitHub.
+* You are not satisfied with the performance of runners hosted by GitHub.
+* You want to host them on your own server machine, but it is a hassle.
+* You are troubled by the fact that you can't customize the image, even though there are too many requirements for the runner.
+
 ## How it works
 
 This script has been tested on Ubuntu 24.04 host
@@ -31,6 +38,8 @@ and builds a self-hosted runner instance on a container.
 
 When the runner finishes executing the job, this container also terminates,
 the container is deleted on the spot, and the container is executed again.
+
+![Architecture](images/architecture.png)
 
 `podman` runs as the superuser, but runs as a normal user inside the container (you can also use `sudo`).
 
@@ -96,6 +105,8 @@ See [Dockerfile](scripts/Dockerfile) for detail.
 
 If necessary, you can install additional packages using `apt-get` or other tools within the Actions job YAML script.
 In other words, you can control it using only the YAML script without having to rebuild the container image.
+
+Alternatively, you can edit the `Dockerfile` directly to build and run an image with many packages pre-installed.
 
 ## Install multiple runner instance
 
