@@ -78,6 +78,11 @@ CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 # Run the container
 sudo podman run --rm --name "${CONTAINER_NAME}" \
     -e INSTANCE_NAME="$INSTANCE_NAME" \
+    --userns=keep-id \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    -v /etc/subuid:/etc/subuid:ro \
+    -v /etc/subgid:/etc/subgid:ro \
+    -v /dev/fuse:/dev/fuse:rw \
     -v ${CACHE_DIR}:/runner-cache \
     -v ${CONFIGURE_DIR}:/config \
     -v ${APT_ARCHIVE_DIR}:/var/cache/apt/archives \
