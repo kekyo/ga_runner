@@ -61,7 +61,7 @@ We will explain the repository that wants to install the self-hosted runner as `
    $ git clone https://github.com/kekyo/ga_runner
    ```
 2. Build `podman` image (You have to run only once per the host).
-   It will be installed `curl` and `podman` automatically:
+   It will be installed `curl`, `uidmap` and `podman` automatically:
    ```bash
    $ cd ga_runner
    $ ./build.sh
@@ -98,7 +98,8 @@ The number of packages installed in the container is minimal.
 The list is shown below:
 
 ```
-sudo, tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
+sudo, uidmap, fuse-overlays, slirp4netns, ca-certificates,
+tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 See [Dockerfile](scripts/Dockerfile) for detail.

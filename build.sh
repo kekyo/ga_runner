@@ -7,7 +7,7 @@ echo "License under MIT."
 echo "https://github.com/kekyo/ga_runner/"
 echo ""
 
-sudo apt-get install -y curl podman
+sudo apt-get install -y curl uidmap podman
 
 #-------------------------------------------------
 

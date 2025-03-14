@@ -11,7 +11,7 @@ ENV RUNNER_HOME=/home/runner
 
 # Packages
 RUN apt-get update && apt-get install -y \
-    sudo tzdata locales curl libxml2-utils git unzip libicu-dev \
+    sudo uidmap fuse-overlayfs slirp4netns ca-certificates tzdata locales curl libxml2-utils git unzip libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Add a runner user
@@ -30,6 +30,9 @@ RUN chmod +x /entrypoint.sh
 
 # Set a user
 USER runner
+
+# Set runtime directory path
+ENV XDG_RUNTIME_DIR=/run/user/runner
 
 # Entry point
 ENTRYPOINT ["/entrypoint.sh"]

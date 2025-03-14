@@ -32,8 +32,8 @@ APT_LIST_DIR="${APT_DIR}/lists"
 NPM_DIR="${CACHE_DIR}/npm"
 NUGET_DIR="${CACHE_DIR}/nuget"
 DOTNET_DIR="${CACHE_DIR}/dotnet"
-PIP_DIR="${CACHE_DIR}/pip"
 MAVEN_DIR="${CACHE_DIR}/maven"
+DOT_CACHE_DIR="${CACHE_DIR}/cache"
 
 mkdir -p "$CACHE_DIR"
 sudo chmod 770 "$CACHE_DIR"
@@ -63,13 +63,13 @@ mkdir -p "$DOTNET_DIR"
 sudo chmod 775 "$DOTNET_DIR"
 sudo chgrp 1001 "$DOTNET_DIR"
 
-mkdir -p "$PIP_DIR"
-sudo chmod 775 "$PIP_DIR"
-sudo chgrp 1001 "$PIP_DIR"
-
 mkdir -p "$MAVEN_DIR"
 sudo chmod 775 "$MAVEN_DIR"
 sudo chgrp 1001 "$MAVEN_DIR"
+
+mkdir -p "$DOT_CACHE_DIR"
+sudo chmod 775 "$DOT_CACHE_DIR"
+sudo chgrp 1001 "$DOT_CACHE_DIR"
 
 CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 
@@ -78,6 +78,11 @@ CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 # Run the container
 sudo podman run --rm --name "${CONTAINER_NAME}" \
     -e INSTANCE_NAME="$INSTANCE_NAME" \
+    --userns=keep-id \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    -v /etc/subuid:/etc/subuid:ro \
+    -v /etc/subgid:/etc/subgid:ro \
+    -v /dev/fuse:/dev/fuse:rw \
     -v ${CACHE_DIR}:/runner-cache \
     -v ${CONFIGURE_DIR}:/config \
     -v ${APT_ARCHIVE_DIR}:/var/cache/apt/archives \
@@ -85,8 +90,8 @@ sudo podman run --rm --name "${CONTAINER_NAME}" \
     -v ${NPM_DIR}:/home/runner/.npm \
     -v ${NUGET_DIR}:/home/runner/.nuget \
     -v ${DOTNET_DIR}:/home/runner/.dotnet \
-    -v ${PIP_DIR}:/home/runner/.cache/pip \
     -v ${MAVEN_DIR}:/home/runner/.m2/repository \
+    -v ${DOT_CACHE_DIR}:/home/runner/.cache \
     $IMAGE_NAME
 
 exit $?

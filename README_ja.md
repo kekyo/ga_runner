@@ -56,7 +56,7 @@ GitHubがホストするランナーはイミュータブルであり、ビル�
    $ git clone https://github.com/kekyo/ga_runner
    ```
 2. コンテナイメージをビルドします（ホストごとに1回のみ実行する必要があります）。
-   これにより、`curl` と `podman` が自動的にインストールされます:
+   これにより、`curl`, `uidmap`, `podman` が自動的にインストールされます:
    ```bash
    $ cd ga_runner
    $ ./build.sh
@@ -93,7 +93,8 @@ $ sudo systemctl status github-actions-runner_kekyo_foobar
 以下にリストを示します:
 
 ```
-sudo, tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
+sudo, uidmap, fuse-overlays, slirp4netns, ca-certificates,
+tzdata, locales, curl, libxml2-utils, git, unzip, libicu-dev
 ```
 
 詳しくは [Dockerfile](scripts/Dockerfile) を参照してください。
