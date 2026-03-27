@@ -9,11 +9,11 @@ set -e
 USER_NAME="$1"
 REPOSITORY_NAME="$2"
 INSTANCE_POSTFIX="$3"
-RUNNER_TOKEN="$4"
+GITHUB_PAT="$4"
 HTTP_PROXY="$5"
 
-if [ -z "$USER_NAME" ] || [ -z "$REPOSITORY_NAME" ] || [ -z "$RUNNER_TOKEN" ]; then
-    echo "usage: setup.sh <user_name> <repository_name> <instance_postfix> <runner_token> [<proxy url>]"
+if [ -z "$USER_NAME" ] || [ -z "$REPOSITORY_NAME" ] || [ -z "$GITHUB_PAT" ]; then
+    echo "usage: setup.sh <user_name> <repository_name> <instance_postfix> <github_pat> [<proxy url>]"
     exit 1
 fi
 
@@ -36,6 +36,43 @@ SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 SCRIPT_DIR="$(dirname "$0")"
 CONFIGURE_BASE_DIR="${SCRIPT_DIR}/config"
 CACHE_BASE_DIR="${SCRIPT_DIR}/runner-cache"
+
+save_config_value() {
+    FILE_PATH="$1"
+    VALUE="$2"
+
+    printf '%s\n' "$VALUE" > "$FILE_PATH"
+    sudo chmod 640 "$FILE_PATH"
+    sudo chgrp 1001 "$FILE_PATH"
+}
+
+validate_github_pat() {
+    echo "Validating GitHub personal access token..."
+
+    API_URL="https://api.github.com/repos/${USER_NAME}/${REPOSITORY_NAME}/actions/runners/registration-token"
+    RESPONSE_PATH=$(mktemp)
+
+    if ! HTTP_STATUS=$(curl -sS -o "$RESPONSE_PATH" -w "%{http_code}" \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_PAT}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        "$API_URL"); then
+        echo "Failed to validate GitHub personal access token."
+        rm -f "$RESPONSE_PATH"
+        exit 1
+    fi
+
+    if [ "$HTTP_STATUS" != "201" ]; then
+        echo "Failed to validate GitHub personal access token for repository runner registration."
+        echo "Repository: ${USER_NAME}/${REPOSITORY_NAME}"
+        cat "$RESPONSE_PATH"
+        rm -f "$RESPONSE_PATH"
+        exit 1
+    fi
+
+    rm -f "$RESPONSE_PATH"
+}
 
 #-------------------------------------------------
 
@@ -94,6 +131,10 @@ CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
 
 #-------------------------------------------------
 
+validate_github_pat
+
+#-------------------------------------------------
+
 # Remove previous service
 sudo systemctl daemon-reload
 if [ -f "$SERVICE_INSTALL_PATH" ]; then
@@ -128,12 +169,12 @@ mkdir -p "$CONFIGURE_DIR"
 sudo chmod 770 "$CONFIGURE_DIR"
 sudo chgrp 1001 "$CONFIGURE_DIR"
 
-echo "$GITHUB_URL" | tee "${CONFIGURE_DIR}/github_url" 2>/dev/null
-echo "$RUNNER_NAME" | tee "${CONFIGURE_DIR}/runner_name" 2>/dev/null
-echo "$RUNNER_TOKEN" | tee "${CONFIGURE_DIR}/runner_token" 2>/dev/null
+save_config_value "${CONFIGURE_DIR}/github_url" "$GITHUB_URL"
+save_config_value "${CONFIGURE_DIR}/runner_name" "$RUNNER_NAME"
+save_config_value "${CONFIGURE_DIR}/github_pat" "$GITHUB_PAT"
 
 if [ ! -z "$HTTP_PROXY" ]; then
-    echo "$HTTP_PROXY" | tee "${CONFIGURE_DIR}/http_proxy" 2>/dev/null
+    save_config_value "${CONFIGURE_DIR}/http_proxy" "$HTTP_PROXY"
 fi
 
 #---------------------------------------------------

@@ -38,6 +38,8 @@ and builds a self-hosted runner instance on a container.
 
 When the runner finishes executing the job, this container also terminates,
 the container is deleted on the spot, and the container is executed again.
+At each startup, `ga_runner` uses your GitHub personal access token (PAT) to request
+a fresh registration token and register an ephemeral runner for a single job.
 
 ![Architecture](images/architecture.png)
 
@@ -66,14 +68,16 @@ We will explain the repository that wants to install the self-hosted runner as `
    $ cd ga_runner
    $ ./build.sh
    ```
-3. Pick your repository "Actions runner token" from GitHub.
-   It is NOT "personal access token", please refer to the following screenshot:
+3. Create a fine-grained GitHub personal access token (PAT) for the target repository.
+   Grant `Administration: Read and write` under "Repository permissions".
+   The token is used only to request short-lived runner registration tokens automatically.
+   Please refer to the following screenshot:
    ![Step 1](images/step1.png)
    ![Step 2](images/step2.png)
 4. Install runner service by:
-   `install.sh <GitHub user name> <GitHub repository name> <Instance postfix> <Actions runner token>`. For example:
+   `install.sh <GitHub user name> <GitHub repository name> <Instance postfix> <GitHub PAT>`. For example:
    ```bash
-   $ ./install.sh kekyo foobar "" ABP************************
+   $ ./install.sh kekyo foobar "" github_pat_************************
    ```
 
 That's all!  ("Instance postfix" argument is specified as an empty string. Will explain this later.)
@@ -87,10 +91,12 @@ $ sudo systemctl status github-actions-runner_kekyo_foobar
 
 ## Storing configuration information
 
-When runner access GitHub for the first time, you will be authenticated using your "Actions runner token".
-The results of this authentication will be stored in the `scripts/config/` directory.
+The GitHub URL, runner name, and GitHub PAT are stored in the `scripts/config/` directory.
+Each time the container starts, `ga_runner` uses the PAT to request a fresh short-lived registration token
+and registers a new ephemeral runner for a single job.
 
-If something goes wrong, delete the service using `remove.sh` and start again from the beginning, obtaining a new "Actions runner token".
+If the PAT expires, is rotated, or something goes wrong, run `install.sh` again with a new PAT.
+If you want to start over completely, delete the service using `remove.sh` and install it again.
 
 ## Installed packages on the job container
 
@@ -119,9 +125,9 @@ If you want to run multiple runner instances on the same host for the same repos
 For example, to run multiple instances for the `https://github.com/kekyo/foobar` repository:
 
 ```bash
-$ ./install.sh kekyo foobar "instance1" ABP************************
-$ ./install.sh kekyo foobar "instance2" ABP************************
-$ ./install.sh kekyo foobar "instance3" ABP************************
+$ ./install.sh kekyo foobar "instance1" github_pat_************************
+$ ./install.sh kekyo foobar "instance2" github_pat_************************
+$ ./install.sh kekyo foobar "instance3" github_pat_************************
 ```
 
 Please identify them using "Instance postfix".
@@ -151,10 +157,10 @@ These can be redirected to your nearest local proxy server, which will then cach
 This will speed up the download of packages and content.
 Of course, you can also use it to get tunneling firewalls.
 
-The URL to the proxy server is specified as the fourth optional argument to `install.sh`:
+The URL to the proxy server is specified as the optional fifth argument to `install.sh`:
 
 ```bash
-$ ./install.sh kekyo foobar "" ABP************************ http://proxy.example.com:3128
+$ ./install.sh kekyo foobar "" github_pat_************************ http://proxy.example.com:3128
 ```
 
 The URL you specify must be a valid hostname that can be accessed from within the runner container.
@@ -176,7 +182,7 @@ $ sudo systemctl restart squid
 `podman` can specify the host's virtual network address by using the special `host.containers.internal` FQDN, so you can specify the URL as follows:
 
 ```bash
-$ ./install.sh kekyo foobar ABP************************ http://host.containers.internal:3128
+$ ./install.sh kekyo foobar "" github_pat_************************ http://host.containers.internal:3128
 ```
 
 ## Remove the runner service

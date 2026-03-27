@@ -95,32 +95,27 @@ chmod +x config.sh run.sh
 # Configure the runner
 GITHUB_URL_PATH="${CONFIGURE_DIR}/github_url"
 RUNNER_NAME_PATH="${CONFIGURE_DIR}/runner_name"
-RUNNER_TOKEN_PATH="${CONFIGURE_DIR}/runner_token"
-if [ -f "$GITHUB_URL_PATH" ] && [ -f "$RUNNER_NAME_PATH" ] && [ -f "$RUNNER_TOKEN_PATH" ]; then
-    # Register runner
-    echo "Configuring the runner..."
-    GITHUB_URL=$(cat "$GITHUB_URL_PATH")
-    RUNNER_NAME=$(cat "$RUNNER_NAME_PATH")
-    RUNNER_TOKEN=$(cat "$RUNNER_TOKEN_PATH")
-    echo "GITHUB_URL=$GITHUB_URL"
-    echo "RUNNER_NAME=$RUNNER_NAME"
-    echo "RUNNER_TOKEN=************"
-    ./config.sh --url "$GITHUB_URL" --name "$RUNNER_NAME" --token "$RUNNER_TOKEN" --unattended --disableupdate --replace
-    rm -f "$GITHUB_URL_PATH" "$RUNNER_NAME_PATH" "$RUNNER_TOKEN_PATH"
-    find . -maxdepth 1 -type f -name '.*' -exec cp {} "${CONFIGURE_DIR}/" \;
-else
-    echo "Runner already configured: $CONFIGURE_DIR"
-    find "${CONFIGURE_DIR}" -maxdepth 1 -type f -name '.*' -exec cp {} . \;
+GITHUB_PAT_PATH="${CONFIGURE_DIR}/github_pat"
+if [ ! -f "$GITHUB_URL_PATH" ] || [ ! -f "$RUNNER_NAME_PATH" ] || [ ! -f "$GITHUB_PAT_PATH" ]; then
+    echo "Runner configuration is incomplete: $CONFIGURE_DIR"
+    echo "Expected files: github_url, runner_name, github_pat"
+    echo "Re-run install.sh with a GitHub personal access token."
+    exit 1
 fi
+
+echo "Configuring the runner..."
+GITHUB_URL=$(cat "$GITHUB_URL_PATH")
+RUNNER_NAME=$(cat "$RUNNER_NAME_PATH")
+GITHUB_PAT=$(cat "$GITHUB_PAT_PATH")
+echo "GITHUB_URL=$GITHUB_URL"
+echo "RUNNER_NAME=$RUNNER_NAME"
+echo "GITHUB_PAT=************"
+./config.sh --url "$GITHUB_URL" --name "$RUNNER_NAME" --pat "$GITHUB_PAT" --unattended --disableupdate --replace --ephemeral
 
 #-----------------------------------------------------
 
 # Execute runner
-# The `--once` option (on `run.sh`) is supposed to be changed to the `--ephemeral` option (on `config.sh`).
-# However, once a job is executed with `--ephemeral`, the credential becomes invalid and cannot be re-executed as is.
-# I hope that the `--once` option will be supported as a full feature with gentle improvements.
-# https://github.com/actions/runner/issues/510
-# https://github.com/actions/runner/issues/1339
-# https://github.com/actions/runner/blob/de51cd0ed662503274ebd06b8044e10c4d8254c1/src/Runner.Common/Constants.cs#L142
+# Each container start registers a fresh ephemeral runner using the stored PAT.
+# The runner accepts one job, GitHub de-registers it, and then systemd restarts the container.
 echo "Execute the runner..."
-exec ./run.sh --once
+exec ./run.sh
