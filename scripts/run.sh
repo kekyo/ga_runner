@@ -31,6 +31,7 @@ APT_ARCHIVE_DIR="${APT_DIR}/archives"
 APT_LIST_DIR="${APT_DIR}/lists"
 NPM_DIR="${CACHE_DIR}/npm"
 NUGET_DIR="${CACHE_DIR}/nuget"
+NUGET_CONFIG_DIR="${NUGET_DIR}/NuGet"
 DOTNET_DIR="${CACHE_DIR}/dotnet"
 MAVEN_DIR="${CACHE_DIR}/maven"
 DOT_CACHE_DIR="${CACHE_DIR}/cache"
@@ -58,6 +59,15 @@ sudo chgrp 1001 "$NPM_DIR"
 mkdir -p "$NUGET_DIR"
 sudo chmod 775 "$NUGET_DIR"
 sudo chgrp 1001 "$NUGET_DIR"
+
+mkdir -p "$NUGET_CONFIG_DIR"
+sudo chmod 775 "$NUGET_CONFIG_DIR"
+sudo chgrp 1001 "$NUGET_CONFIG_DIR"
+
+# Reset user-wide NuGet settings on each startup.
+# Sudo-based jobs may leave root-owned config files in the persistent cache.
+sudo rm -f "${NUGET_CONFIG_DIR}/NuGet.Config" "${NUGET_CONFIG_DIR}/nuget.config"
+sudo rm -rf "${NUGET_CONFIG_DIR}/config"
 
 mkdir -p "$DOTNET_DIR"
 sudo chmod 775 "$DOTNET_DIR"
