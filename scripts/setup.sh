@@ -36,12 +36,30 @@ SERVICE_INSTALL_PATH="/etc/systemd/system/${CONTAINER_NAME}.service"
 SCRIPT_DIR="$(dirname "$0")"
 CONFIGURE_BASE_DIR="${SCRIPT_DIR}/config"
 CACHE_BASE_DIR="${SCRIPT_DIR}/runner-cache"
+CONFIGURE_FILE_NAME="config.ini"
 
 save_config_value() {
     FILE_PATH="$1"
     VALUE="$2"
 
     printf '%s\n' "$VALUE" > "$FILE_PATH"
+    sudo chmod 640 "$FILE_PATH"
+    sudo chgrp 1001 "$FILE_PATH"
+}
+
+save_default_config() {
+    FILE_PATH="$1"
+
+    cat > "$FILE_PATH" <<'EOF'
+[cache]
+runner_package = enabled
+apt = enabled
+npm = enabled
+nuget = enabled
+dotnet = enabled
+maven = enabled
+home_cache = enabled
+EOF
     sudo chmod 640 "$FILE_PATH"
     sudo chgrp 1001 "$FILE_PATH"
 }
@@ -128,6 +146,7 @@ sudo chmod 770 "$CONFIGURE_BASE_DIR"
 sudo chgrp 1001 "$CONFIGURE_BASE_DIR"
 
 CONFIGURE_DIR="${CONFIGURE_BASE_DIR}/${INSTANCE_NAME}"
+CONFIGURE_FILE_PATH="${CONFIGURE_DIR}/${CONFIGURE_FILE_NAME}"
 
 #-------------------------------------------------
 
@@ -164,6 +183,12 @@ fi
 #---------------------------------------------------
 
 # Clean and save configuration
+PREVIOUS_CONFIG_INI_PATH=""
+if [ -f "$CONFIGURE_FILE_PATH" ]; then
+    PREVIOUS_CONFIG_INI_PATH=$(mktemp)
+    cp "$CONFIGURE_FILE_PATH" "$PREVIOUS_CONFIG_INI_PATH"
+fi
+
 sudo rm -rf "$CONFIGURE_DIR"
 mkdir -p "$CONFIGURE_DIR"
 sudo chmod 770 "$CONFIGURE_DIR"
@@ -175,6 +200,15 @@ save_config_value "${CONFIGURE_DIR}/github_pat" "$GITHUB_PAT"
 
 if [ ! -z "$HTTP_PROXY" ]; then
     save_config_value "${CONFIGURE_DIR}/http_proxy" "$HTTP_PROXY"
+fi
+
+if [ -n "$PREVIOUS_CONFIG_INI_PATH" ]; then
+    cp "$PREVIOUS_CONFIG_INI_PATH" "$CONFIGURE_FILE_PATH"
+    rm -f "$PREVIOUS_CONFIG_INI_PATH"
+    sudo chmod 640 "$CONFIGURE_FILE_PATH"
+    sudo chgrp 1001 "$CONFIGURE_FILE_PATH"
+else
+    save_default_config "$CONFIGURE_FILE_PATH"
 fi
 
 #---------------------------------------------------

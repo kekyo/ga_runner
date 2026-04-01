@@ -2,7 +2,7 @@
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-Tested Actions runner version: [2.322.0](https://github.com/actions/runner/releases) [2025/3/6]
+Tested Actions runner version: [2.333.1](https://github.com/actions/runner/releases) [2026/4/1]
 
 ----
 
@@ -139,6 +139,24 @@ Actionsランナーは、起動されるたびに、公式の [GitHub Actions ru
 
 また、APT(Ubuntu), NPM(Node.js), .NET runtime, NuGet(.NET), Pip(Python)の各配布ファイルやパッケージもキャッシュされます。
 もし、キャッシュされたコンテンツが原因で動作がおかしいと思われた場合は、 `scripts/runner-cache/` 配下のファイルを削除してください。
+
+各インスタンスには、`scripts/config/<instance_name>/config.ini` というキャッシュ設定ファイルも作成されます。
+このファイルで、キャッシュを項目ごとに有効・無効化できます:
+
+```ini
+[cache]
+runner_package = enabled
+apt = enabled
+npm = enabled
+nuget = enabled
+dotnet = enabled
+maven = enabled
+home_cache = enabled
+```
+
+`home_cache` は `/home/runner/.cache` を制御し、Pip などのユーザー単位キャッシュを対象にします。
+`config.ini` が無い場合や、キーが省略されている場合は、従来互換のため有効のまま動作します。
+`install.sh` を再実行した場合も、既存の `config.ini` は保持されます。
 
 ## HTTP/HTTPSをプロキシサーバーにリダイレクトする
 

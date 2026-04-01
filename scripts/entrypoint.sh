@@ -20,6 +20,13 @@ RUNNER_DIR="/home/runner/actions-runner"
 
 #-----------------------------------------------------
 
+if [ ! -d "$CACHE_DIR" ]; then
+    sudo mkdir -p "$CACHE_DIR"
+    sudo chown runner:runner "$CACHE_DIR"
+fi
+
+#-----------------------------------------------------
+
 if [ -d "$CONFIGURE_DIR" ]; then
     echo "Configuration directory is found: $CONFIGURE_DIR"
 else

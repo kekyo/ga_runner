@@ -150,6 +150,24 @@ If these files are up to date, the Runner will reuse them.
 The distribution files and packages for APT(Ubuntu), NPM(Node.js), .NET runtime, NuGet(.NET) and Pip(Python) are also cached.
 If you think that the cached content is causing a problem, delete the files under `scripts/runner-cache/`.
 
+Each instance also has a cache configuration file at `scripts/config/<instance_name>/config.ini`.
+You can enable or disable each cache independently:
+
+```ini
+[cache]
+runner_package = enabled
+apt = enabled
+npm = enabled
+nuget = enabled
+dotnet = enabled
+maven = enabled
+home_cache = enabled
+```
+
+`home_cache` controls `/home/runner/.cache`, which includes Pip and other user-level caches.
+If `config.ini` is missing, or a key is omitted, the cache remains enabled to preserve the previous behavior.
+If you run `install.sh` again, the existing `config.ini` is kept as-is.
+
 ## Redirect HTTP/HTTPS to the proxy server
 
 You may want to cache the HTTP/HTTPS access that the job performs.
